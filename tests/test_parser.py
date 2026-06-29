@@ -12,6 +12,7 @@ parser = module_from_spec(spec)
 spec.loader.exec_module(parser)
 
 parse_usage_response = parser.parse_usage_response
+parse_reset_credits_response = parser.parse_reset_credits_response
 retry_after_to_datetime = parser.retry_after_to_datetime
 
 
@@ -62,6 +63,31 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(data["credits_enabled"], True)
         self.assertEqual(data["credits_balance"], 7)
         self.assertEqual(data["promo_message"], "hello")
+
+    def test_parses_reset_credit_details_without_ids(self) -> None:
+        data = parse_reset_credits_response(
+            {
+                "available_count": 2,
+                "credits": [
+                    {
+                        "id": "credit-secret",
+                        "granted_at": "2026-06-17T17:38:38Z",
+                        "expires_at": "2026-07-17T17:38:38Z",
+                        "status": "available",
+                    },
+                    {
+                        "id": "credit-secret-2",
+                        "grantedAt": "2026-06-10T17:38:38Z",
+                        "expiresAt": "2026-07-10T17:38:38Z",
+                    },
+                ],
+            }
+        )
+
+        self.assertEqual(data["reset_credits_available"], 2)
+        self.assertEqual(data["reset_credits_expiry"], "2026-07-10T17:38:38+00:00")
+        self.assertEqual(data["reset_credits"][0]["status"], "available")
+        self.assertNotIn("id", data["reset_credits"][0])
 
     def test_retry_after_delta(self) -> None:
         now = datetime(2026, 6, 30, 0, 0, tzinfo=UTC)

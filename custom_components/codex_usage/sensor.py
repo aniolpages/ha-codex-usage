@@ -95,6 +95,16 @@ class CodexUsageSensor(CoordinatorEntity[CodexUsageCoordinator], SensorEntity):
                 return None
         return value
 
+    @property
+    def extra_state_attributes(self) -> dict[str, Any] | None:
+        """Return reset-credit details as attributes."""
+        if self._key != "reset_credits_available" or self.coordinator.data is None:
+            return None
+        credits = self.coordinator.data.get("reset_credits")
+        if not isinstance(credits, list):
+            return None
+        return {"credits": credits}
+
 
 def _dynamic_sensor_definitions(
     data: dict[str, Any],

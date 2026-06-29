@@ -7,7 +7,11 @@ from typing import Any
 
 import aiohttp
 
-from .parser import parse_usage_response, retry_after_to_datetime
+from .parser import (
+    parse_reset_credits_response,
+    parse_usage_response,
+    retry_after_to_datetime,
+)
 
 
 class CodexUsageAuthError(Exception):
@@ -39,36 +43,54 @@ class CodexUsageClient:
 
     async def async_get_usage(self) -> dict[str, Any]:
         """Fetch and parse usage from the Codex backend."""
-        url = f"{self._base_url}/wham/usage"
-        headers = {
-            "Authorization": f"Bearer {self._token}",
-            "User-Agent": "codex-usage-home-assistant",
-        }
-        if self._account_id:
-            headers["ChatGPT-Account-ID"] = self._account_id
+        body, response_headers, status = await self._get_json("/wham/usage", required=True)
+        data = parse_usage_response(body, response_headers)
+        reset_body, _, _ = await self._get_json("/wham/rate-limit-reset-credits", required=False)
+        data.update(parse_reset_credits_response(reset_body))
+        data["last_http_status"] = status
+        data["api_error"] = 0
+        return data
 
+    async def _get_json(
+        self, path: str, required: bool
+    ) -> tuple[dict[str, Any], dict[str, str], int]:
+        url = f"{self._base_url}{path}"
         async with self._session.get(
             url,
-            headers=headers,
+            headers=self._headers(),
             timeout=aiohttp.ClientTimeout(total=20),
         ) as resp:
             response_headers = {key.lower(): value for key, value in resp.headers.items()}
             if resp.status in {401, 403}:
-                raise CodexUsageAuthError(f"authentication failed ({resp.status})")
+                if required:
+                    raise CodexUsageAuthError(f"authentication failed ({resp.status})")
+                return {}, response_headers, resp.status
             if resp.status == 429:
                 retry_at = retry_after_to_datetime(
                     response_headers.get("retry-after"), datetime.now(UTC)
                 ) or datetime.now(UTC)
                 raise CodexUsageRateLimited(retry_at)
+            if not required and resp.status >= 400:
+                return {}, response_headers, resp.status
             resp.raise_for_status()
-            body = await resp.json(content_type=None)
+            try:
+                body = await resp.json(content_type=None)
+            except ValueError:
+                if required:
+                    raise
+                body = {}
+        return body if isinstance(body, dict) else {}, response_headers, resp.status
 
-        if not isinstance(body, dict):
-            body = {}
-        data = parse_usage_response(body, response_headers)
-        data["last_http_status"] = resp.status
-        data["api_error"] = 0
-        return data
+    def _headers(self) -> dict[str, str]:
+        headers = {
+            "Authorization": f"Bearer {self._token}",
+            "OpenAI-Beta": "codex-1",
+            "originator": "Codex Desktop",
+            "User-Agent": "codex-usage-home-assistant",
+        }
+        if self._account_id:
+            headers["ChatGPT-Account-ID"] = self._account_id
+        return headers
 
 
 def _normalize_base_url(base_url: str) -> str:

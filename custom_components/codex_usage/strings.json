@@ -51,7 +51,7 @@
       "credits_unlimited": { "name": "Unlimited Credits" },
       "credits_balance": { "name": "Credits Balance" },
       "reset_credits_available": { "name": "Reset Credits Available" },
-      "reset_credits_expiry": { "name": "Reset Credits Expiry" },
+      "reset_credits_expiry": { "name": "Next Reset Credit Expiry" },
       "rate_limit_reached_type": { "name": "Rate Limit Reached Type" },
       "rate_limited_until": { "name": "API Rate Limited Until" },
       "api_error": { "name": "API Error" }

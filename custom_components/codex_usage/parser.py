@@ -24,6 +24,27 @@ def parse_usage_response(
     return _without_none(data)
 
 
+def parse_reset_credits_response(body: dict[str, Any]) -> dict[str, Any]:
+    """Parse detailed reset-credit data without exposing credit IDs."""
+    data: dict[str, Any] = {}
+    credits = body.get("credits")
+    if not isinstance(credits, list):
+        credits = []
+
+    clean_credits = [_clean_reset_credit(item) for item in credits if isinstance(item, dict)]
+    clean_credits = [item for item in clean_credits if item]
+
+    data["reset_credits_available"] = _int(body.get("available_count"))
+    if data["reset_credits_available"] is None and clean_credits:
+        data["reset_credits_available"] = len(clean_credits)
+    if clean_credits:
+        data["reset_credits"] = clean_credits
+        expiries = [item["expires_at"] for item in clean_credits if "expires_at" in item]
+        if expiries:
+            data["reset_credits_expiry"] = min(expiries)
+    return _without_none(data)
+
+
 def retry_after_to_datetime(value: str | None, now: datetime) -> datetime | None:
     """Return a Retry-After timestamp for delta-seconds or HTTP-date values."""
     if not value:
@@ -80,6 +101,18 @@ def _parse_body(body: dict[str, Any]) -> dict[str, Any]:
                 data[f"{limit_id}_limit_name"] = name
 
     return data
+
+
+def _clean_reset_credit(credit: dict[str, Any]) -> dict[str, Any]:
+    clean: dict[str, Any] = {}
+    for key in ("granted_at", "expires_at", "redeemed_at"):
+        value = _iso_from_timestampish(credit.get(key) or credit.get(_camel(key)))
+        if value:
+            clean[key] = value
+    status = _text(credit.get("status") or credit.get("state"))
+    if status:
+        clean["status"] = status
+    return clean
 
 
 def _copy_rate_limit(data: dict[str, Any], rate_limit: Any, limit_id: str) -> None:
@@ -216,6 +249,11 @@ def _number_or_string(value: Any) -> int | float | str | None:
 
 def _text(value: Any) -> str | None:
     return value.strip() if isinstance(value, str) and value.strip() else None
+
+
+def _camel(value: str) -> str:
+    head, *tail = value.split("_")
+    return head + "".join(part.title() for part in tail)
 
 
 def _without_none(data: dict[str, Any]) -> dict[str, Any]:

@@ -12,6 +12,10 @@ The integration calls the same Codex backend usage path used by the official ope
 
 `GET https://chatgpt.com/backend-api/wham/usage`
 
+It also calls the read-only reset-credit detail path reported in [openai/codex#28963](https://github.com/openai/codex/issues/28963):
+
+`GET https://chatgpt.com/backend-api/wham/rate-limit-reset-credits`
+
 OpenAI documents Codex plan limits, the Codex usage dashboard, credits, and reset credits in the [Codex pricing docs](https://developers.openai.com/codex/pricing). Business and Enterprise workspaces also have official [Codex governance and analytics docs](https://developers.openai.com/codex/enterprise/governance).
 
 OpenAI does not publicly document a third-party OAuth flow for personal ChatGPT accounts. For that reason, this integration does not try to recreate one. It accepts a bearer token that the Codex backend accepts. Business and Enterprise users should prefer a Codex access token from ChatGPT admin settings.
@@ -24,14 +28,14 @@ OpenAI does not publicly document a third-party OAuth flow for personal ChatGPT 
 - **Primary Window** and **Secondary Window**
 - **Credits Enabled**, **Unlimited Credits**, and **Credits Balance**
 - **Reset Credits Available**
-- **Reset Credits Expiry**, only if OpenAI returns an expiry field
+- **Next Reset Credit Expiry**
 - **Rate Limit Reached Type**
 - **API Rate Limited Until**
 - **API Error**
 
 If OpenAI returns additional metered limits, the integration creates matching usage, reset-time, and window sensors on first setup.
 
-The usage endpoint currently exposes the number of available reset credits. The official client schema does not expose an expiry timestamp for those credits; this integration will show one only if the response starts returning it.
+When reset-credit details are available, the **Reset Credits Available** sensor includes sanitized `credits` attributes with grant, expiry, redeemed, and status fields. Credit IDs and account identifiers are not exposed. The integration does not call the reset-credit consume endpoint.
 
 ## Installation
 
@@ -64,7 +68,7 @@ The integration respects `429 Too Many Requests` and `Retry-After`: after a rate
 ## Development
 
 ```bash
-python -m unittest
+python -m unittest discover -s tests
 ruff check .
 python -m compileall custom_components tests
 ```
