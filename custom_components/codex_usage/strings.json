@@ -1,0 +1,60 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "OpenAI Codex Usage",
+        "description": "Enter a bearer token accepted by the Codex backend. Business and Enterprise users can create Codex access tokens from ChatGPT admin settings. Personal ChatGPT OAuth for third-party integrations is not publicly documented by OpenAI.",
+        "data": {
+          "access_token": "Access token",
+          "account_id": "ChatGPT account ID",
+          "base_url": "Base URL"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-authenticate OpenAI Codex Usage",
+        "description": "Enter a new Codex access token.",
+        "data": {
+          "access_token": "Access token"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not connect to the Codex usage endpoint.",
+      "invalid_auth": "Authentication failed. Check the token and account ID."
+    },
+    "abort": {
+      "already_configured": "This Codex account is already configured.",
+      "reauth_successful": "Re-authentication was successful."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "OpenAI Codex Usage Options",
+        "description": "Configure the polling interval. The integration also respects Retry-After when OpenAI returns a rate-limit response.",
+        "data": {
+          "update_interval": "Update interval (seconds)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "plan_type": { "name": "Plan Type" },
+      "codex_primary_usage_percent": { "name": "Primary Usage" },
+      "codex_primary_reset_time": { "name": "Primary Reset Time" },
+      "codex_primary_window_minutes": { "name": "Primary Window" },
+      "codex_secondary_usage_percent": { "name": "Secondary Usage" },
+      "codex_secondary_reset_time": { "name": "Secondary Reset Time" },
+      "codex_secondary_window_minutes": { "name": "Secondary Window" },
+      "credits_enabled": { "name": "Credits Enabled" },
+      "credits_unlimited": { "name": "Unlimited Credits" },
+      "credits_balance": { "name": "Credits Balance" },
+      "reset_credits_available": { "name": "Reset Credits Available" },
+      "reset_credits_expiry": { "name": "Reset Credits Expiry" },
+      "rate_limit_reached_type": { "name": "Rate Limit Reached Type" },
+      "rate_limited_until": { "name": "API Rate Limited Until" },
+      "api_error": { "name": "API Error" }
+    }
+  }
+}

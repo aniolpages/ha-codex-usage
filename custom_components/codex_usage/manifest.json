@@ -1,0 +1,13 @@
+{
+  "domain": "codex_usage",
+  "name": "OpenAI Codex Usage",
+  "codeowners": ["@aniolpages"],
+  "config_flow": true,
+  "documentation": "https://github.com/aniolpages/ha-codex-usage",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/aniolpages/ha-codex-usage/issues",
+  "requirements": [],
+  "single_config_entry": false,
+  "version": "1"
+}

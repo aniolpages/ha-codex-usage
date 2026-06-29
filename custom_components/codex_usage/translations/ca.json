@@ -1,0 +1,41 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Ús d'OpenAI Codex",
+        "description": "Introdueix un bearer token acceptat pel backend de Codex. Els usuaris de Business i Enterprise poden crear tokens d'accés de Codex des de la configuració d'administració de ChatGPT. L'OAuth personal de ChatGPT per a integracions de tercers no està documentat públicament per OpenAI.",
+        "data": {
+          "access_token": "Token d'accés",
+          "account_id": "ID del compte de ChatGPT",
+          "base_url": "URL base"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Torna a autenticar l'ús d'OpenAI Codex",
+        "description": "Introdueix un token d'accés nou de Codex.",
+        "data": {
+          "access_token": "Token d'accés"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "No s'ha pogut connectar amb l'endpoint d'ús de Codex.",
+      "invalid_auth": "L'autenticació ha fallat. Comprova el token i l'ID del compte."
+    },
+    "abort": {
+      "already_configured": "Aquest compte de Codex ja està configurat.",
+      "reauth_successful": "La reautenticació s'ha completat correctament."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opcions d'ús d'OpenAI Codex",
+        "description": "Configura l'interval de consulta. La integració també respecta Retry-After quan OpenAI retorna una resposta de límit de peticions.",
+        "data": {
+          "update_interval": "Interval d'actualització (segons)"
+        }
+      }
+    }
+  }
+}
