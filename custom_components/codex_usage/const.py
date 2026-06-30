@@ -7,8 +7,16 @@ DEFAULT_UPDATE_INTERVAL = 900
 
 CONF_ACCESS_TOKEN = "access_token"
 CONF_ACCOUNT_ID = "account_id"
+CONF_ACCOUNT_EMAIL = "account_email"
 CONF_BASE_URL = "base_url"
+CONF_EXPIRES_AT = "expires_at"
+CONF_ID_TOKEN = "id_token"
+CONF_REFRESH_TOKEN = "refresh_token"
 CONF_UPDATE_INTERVAL = "update_interval"
+
+CODEX_OAUTH_CLIENT_ID = "app_EMoamEEZ73f0CkXaXp7hrann"
+CODEX_OAUTH_ISSUER = "https://auth.openai.com"
+TOKEN_REFRESH_MARGIN = 300
 
 SENSOR_DEFINITIONS = [
     ("plan_type", "Plan Type", None, "mdi:account-badge", None),

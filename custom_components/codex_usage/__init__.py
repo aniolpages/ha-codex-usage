@@ -15,10 +15,12 @@ from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import CodexUsageAuthError, CodexUsageClient, CodexUsageRateLimited
+from .auth import CodexAuthClient, CodexAuthError, needs_refresh, token_config_data
 from .const import (
     CONF_ACCESS_TOKEN,
     CONF_ACCOUNT_ID,
     CONF_BASE_URL,
+    CONF_REFRESH_TOKEN,
     CONF_UPDATE_INTERVAL,
     DEFAULT_BASE_URL,
     DEFAULT_UPDATE_INTERVAL,
@@ -80,9 +82,17 @@ class CodexUsageCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if self._rate_limited_until and datetime.now(UTC) < self._rate_limited_until:
             return self._with_error(self.data, rate_limited_until=self._rate_limited_until)
 
+        session = aiohttp_client.async_get_clientsession(self.hass)
+        try:
+            access_token = await self._async_access_token(session)
+        except CodexAuthError as err:
+            raise ConfigEntryAuthFailed(str(err)) from err
+        except aiohttp.ClientError as err:
+            raise UpdateFailed(f"Error refreshing Codex token: {err}") from err
+
         client = CodexUsageClient(
-            aiohttp_client.async_get_clientsession(self.hass),
-            self.config_entry.data[CONF_ACCESS_TOKEN],
+            session,
+            access_token,
             self.config_entry.data.get(CONF_ACCOUNT_ID) or None,
             self.config_entry.data.get(CONF_BASE_URL, DEFAULT_BASE_URL),
         )
@@ -99,6 +109,19 @@ class CodexUsageCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         self._rate_limited_until = None
         return data
+
+    async def _async_access_token(self, session: aiohttp.ClientSession) -> str:
+        """Return a valid access token, refreshing if possible."""
+        data = self.config_entry.data
+        refresh_token = data.get(CONF_REFRESH_TOKEN)
+        if refresh_token and needs_refresh(data):
+            tokens = await CodexAuthClient(session).async_refresh_tokens(refresh_token)
+            updated = token_config_data(tokens, data)
+            self.hass.config_entries.async_update_entry(self.config_entry, data=updated)
+            return updated[CONF_ACCESS_TOKEN]
+        if not refresh_token and needs_refresh(data):
+            raise CodexAuthError("Codex token expired; re-authenticate")
+        return data[CONF_ACCESS_TOKEN]
 
     @staticmethod
     def _with_error(

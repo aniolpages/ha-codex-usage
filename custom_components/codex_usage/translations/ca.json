@@ -3,23 +3,21 @@
     "step": {
       "user": {
         "title": "Ús d'OpenAI Codex",
-        "description": "Introdueix un bearer token acceptat pel backend de Codex. Els usuaris de Business i Enterprise poden crear tokens d'accés de Codex des de la configuració d'administració de ChatGPT. L'OAuth personal de ChatGPT per a integracions de tercers no està documentat públicament per OpenAI.",
-        "data": {
-          "access_token": "Token d'accés",
-          "account_id": "ID del compte de ChatGPT",
-          "base_url": "URL base"
-        }
+        "description": "Obre l'enllaç següent, inicia sessió amb ChatGPT i introdueix el codi d'un sol ús. Després torna aquí i envia aquest pas.\n\n[Obre l'inici de sessió de Codex amb codi de dispositiu]({url})\n\nCodi: `{user_code}`"
+      },
+      "device_auth": {
+        "title": "Ús d'OpenAI Codex",
+        "description": "Obre l'enllaç següent, inicia sessió amb ChatGPT i introdueix el codi d'un sol ús. Després torna aquí i envia aquest pas.\n\n[Obre l'inici de sessió de Codex amb codi de dispositiu]({url})\n\nCodi: `{user_code}`"
       },
       "reauth_confirm": {
         "title": "Torna a autenticar l'ús d'OpenAI Codex",
-        "description": "Introdueix un token d'accés nou de Codex.",
-        "data": {
-          "access_token": "Token d'accés"
-        }
+        "description": "Obre l'enllaç següent, inicia sessió amb ChatGPT i introdueix el codi d'un sol ús. Després torna aquí i envia aquest pas.\n\n[Obre l'inici de sessió de Codex amb codi de dispositiu]({url})\n\nCodi: `{user_code}`"
       }
     },
     "error": {
+      "authorization_pending": "L'autorització encara no s'ha completat. Acaba el pas al navegador i torna-ho a enviar.",
       "cannot_connect": "No s'ha pogut connectar amb l'endpoint d'ús de Codex.",
+      "exchange_failed": "No s'ha pogut completar l'autenticació de Codex. Demana un codi nou i torna-ho a provar.",
       "invalid_auth": "L'autenticació ha fallat. Comprova el token i l'ID del compte."
     },
     "abort": {

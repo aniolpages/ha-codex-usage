@@ -18,7 +18,7 @@ It also calls the read-only reset-credit detail path reported in [openai/codex#2
 
 OpenAI documents Codex plan limits, the Codex usage dashboard, credits, and reset credits in the [Codex pricing docs](https://developers.openai.com/codex/pricing). Business and Enterprise workspaces also have official [Codex governance and analytics docs](https://developers.openai.com/codex/enterprise/governance).
 
-OpenAI does not publicly document a third-party OAuth flow for personal ChatGPT accounts. For that reason, this integration does not try to recreate one. It accepts a bearer token that the Codex backend accepts. Business and Enterprise users should prefer a Codex access token from ChatGPT admin settings.
+Authentication uses the Codex device-code flow used by the official Codex CLI. Home Assistant shows a one-time code and an OpenAI login link, then stores the returned access and refresh tokens in the Home Assistant config entry. Tokens are refreshed automatically while the refresh token remains valid.
 
 ## Sensors
 
@@ -45,7 +45,7 @@ When reset-credit details are available, the **Reset Credits Available** sensor 
 2. Restart Home Assistant.
 3. Install **OpenAI Codex Usage**.
 4. Go to Settings -> Devices & Services -> Add Integration -> **OpenAI Codex Usage**.
-5. Enter your token.
+5. Open the shown Codex login link, enter the one-time code, then submit the Home Assistant step.
 
 ### Manual
 
@@ -55,9 +55,9 @@ When reset-credit details are available, the **Reset Credits Available** sensor 
 
 ## Configuration
 
-- **Access token**: bearer token accepted by the Codex backend.
-- **ChatGPT account ID**: optional; passed as `ChatGPT-Account-ID` when your token needs workspace routing.
-- **Base URL**: defaults to `https://chatgpt.com`. The integration normalizes this to `https://chatgpt.com/backend-api`.
+The integration config flow signs in with ChatGPT through Codex device-code login. It stores the returned refresh token so usage polling survives Home Assistant restarts.
+
+Existing entries created with a manually pasted access token still work, but new setups use device-code login.
 
 ## Rate Limits
 
